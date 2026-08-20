@@ -29,8 +29,8 @@ jobs:
           minor=$(((run / 10) % 10))
           patch=$((run % 10))
           echo "value=${major}.${minor}.${patch}" >> "$GITHUB_OUTPUT"
-      - name: Restore
-        run: dotnet restore StandaloneVoiceChat.sln
+      - name: Restore Windows runtime assets
+        run: dotnet restore StandaloneVoiceChat.sln --runtime win-x64
       - name: Build
         run: dotnet build StandaloneVoiceChat.sln --configuration Release --no-restore -p:Version=${{ steps.version.outputs.value }}
       - name: Test
