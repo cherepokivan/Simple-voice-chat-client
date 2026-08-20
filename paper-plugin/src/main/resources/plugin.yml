@@ -5,3 +5,12 @@ api-version: '1.21'
 author: cherepokivan
 description: Fail-closed integration point for a future officially supported standalone Simple Voice Chat bootstrap.
 depend: [voicechat]
+commands:
+  voice:
+    description: Generates a one-time token for the Standalone Voice Chat client.
+    usage: /voice standalone
+    permission: standalonevoicebridge.pair
+permissions:
+  standalonevoicebridge.pair:
+    description: Allows a player to generate their own standalone pairing token.
+    default: true

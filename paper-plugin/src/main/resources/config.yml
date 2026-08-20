@@ -3,6 +3,14 @@ enabled: true
 standalone-client:
   enabled: true
 
+pairing:
+  # Automatically sends a one-time pairing code only to a player who has joined via Minecraft.
+  issue-on-player-join: true
+  # Token validity in seconds. The token is revoked as soon as it is consumed or replaced.
+  token-lifetime-seconds: 120
+  # Uses an alphabet without ambiguous characters (I, O, 0, 1).
+  token-length: 12
+
 # Intentionally disabled. This project does not expose an HTTP/API endpoint until an upstream-supported,
 # authenticated bootstrap contract exists.
 api:
