@@ -1,0 +1,116 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:StandaloneVoiceChat.UI.ViewModels"
+        x:Class="StandaloneVoiceChat.UI.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Simple Voice Chat — Standalone"
+        Width="1050" Height="760"
+        MinWidth="900" MinHeight="650"
+        Background="#0D141F">
+  <ScrollViewer>
+    <Grid Margin="28" RowDefinitions="Auto,Auto,*,Auto">
+      <StackPanel Grid.Row="0" Spacing="4">
+        <TextBlock Text="Simple Voice Chat" FontSize="28" FontWeight="Bold" />
+        <TextBlock Text="Standalone client — безопасный режим подключения" Foreground="#9FB0C5" />
+      </StackPanel>
+
+      <Border Grid.Row="1" Classes="card">
+        <Grid ColumnDefinitions="2*,Auto,Auto,Auto" RowDefinitions="Auto,Auto">
+          <TextBlock Grid.Row="0" Grid.Column="0" Text="Server" Classes="section" />
+          <TextBlock Grid.Row="0" Grid.Column="1" Text="Minecraft Port" Classes="section" />
+          <TextBlock Grid.Row="0" Grid.Column="2" Text="Voice Port" Classes="section" />
+          <TextBlock Grid.Row="0" Grid.Column="3" Text="Protocol" Classes="section" />
+          <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding ServerHost}" Watermark="play.example.com" />
+          <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding MinecraftPort}" Minimum="1" Maximum="65535" Width="130" />
+          <NumericUpDown Grid.Row="1" Grid.Column="2" Value="{Binding VoicePort}" Minimum="1" Maximum="65535" Width="130" />
+          <ComboBox Grid.Row="1" Grid.Column="3" ItemsSource="{Binding ProtocolVersions}" SelectedItem="{Binding SelectedProtocolVersion}" Width="155" />
+        </Grid>
+      </Border>
+
+      <Grid Grid.Row="2" ColumnDefinitions="1.1*,0.9*">
+        <StackPanel Grid.Column="0" Spacing="18">
+          <Border Classes="card">
+            <StackPanel Spacing="12">
+              <TextBlock Text="Connection" Classes="section" />
+              <TextBlock Text="{Binding ConnectionStateText}" FontSize="18" FontWeight="SemiBold" Foreground="{Binding ConnectionStateBrush}" />
+              <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" Foreground="#C2CDDA" />
+              <Button Content="{Binding ConnectButtonText}" Command="{Binding ToggleConnectionCommand}" HorizontalAlignment="Left" MinWidth="155" />
+              <CheckBox Content="Connect automatically" IsChecked="{Binding ConnectAutomatically}" />
+            </StackPanel>
+          </Border>
+
+          <Border Classes="card">
+            <StackPanel Spacing="10">
+              <TextBlock Text="Voice Groups" Classes="section" />
+              <TextBlock Text="Список групп будет доступен только после подтверждённого server bootstrap и штатной авторизации." TextWrapping="Wrap" Foreground="#9FB0C5" />
+              <ListBox ItemsSource="{Binding Groups}" MinHeight="120">
+                <ListBox.ItemTemplate>
+                  <DataTemplate DataType="vm:VoiceGroupViewModel">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <TextBlock Text="{Binding Name}" />
+                      <TextBlock Grid.Column="1" Text="{Binding ParticipantLabel}" Foreground="#9FB0C5" />
+                    </Grid>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+            </StackPanel>
+          </Border>
+
+          <Border Classes="card">
+            <StackPanel Spacing="9">
+              <TextBlock Text="Connection diagnostics" Classes="section" />
+              <ItemsControl ItemsSource="{Binding Diagnostics}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate DataType="vm:DiagnosticItemViewModel">
+                    <Grid ColumnDefinitions="190,*" Margin="0,3">
+                      <TextBlock Text="{Binding Name}" />
+                      <TextBlock Grid.Column="1" Text="{Binding Detail}" Foreground="#9FB0C5" TextWrapping="Wrap" />
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" Spacing="18">
+          <Border Classes="card">
+            <StackPanel Spacing="12">
+              <TextBlock Text="Microphone" Classes="section" />
+              <ComboBox ItemsSource="{Binding InputDevices}" SelectedItem="{Binding SelectedInputDevice}" />
+              <Grid ColumnDefinitions="*,Auto">
+                <Slider Minimum="0" Maximum="150" Value="{Binding InputVolume}" />
+                <TextBlock Grid.Column="1" Text="{Binding InputVolumeLabel}" VerticalAlignment="Center" />
+              </Grid>
+              <CheckBox Content="Mute microphone" IsChecked="{Binding InputMuted}" />
+              <CheckBox Content="Push-to-talk" IsChecked="{Binding PushToTalkEnabled}" />
+              <TextBox Text="{Binding PushToTalkKey}" Watermark="Key" IsEnabled="{Binding PushToTalkEnabled}" />
+              <TextBlock Text="Глобальная клавиша будет включена только в Windows-сборке после реализации зарегистрированного hotkey-сервиса." TextWrapping="Wrap" Foreground="#9FB0C5" FontSize="12" />
+            </StackPanel>
+          </Border>
+
+          <Border Classes="card">
+            <StackPanel Spacing="12">
+              <TextBlock Text="Speaker output" Classes="section" />
+              <ComboBox ItemsSource="{Binding OutputDevices}" SelectedItem="{Binding SelectedOutputDevice}" />
+              <Grid ColumnDefinitions="*,Auto">
+                <Slider Minimum="0" Maximum="150" Value="{Binding OutputVolume}" />
+                <TextBlock Grid.Column="1" Text="{Binding OutputVolumeLabel}" VerticalAlignment="Center" />
+              </Grid>
+              <CheckBox Content="Mute output" IsChecked="{Binding OutputMuted}" />
+            </StackPanel>
+          </Border>
+
+          <Border Classes="card">
+            <StackPanel Spacing="8">
+              <TextBlock Text="Privacy &amp; security" Classes="section" />
+              <TextBlock Text="Секреты сессии не сохраняются. Клиент не создаёт UUID, не обходит серверную аутентификацию и не раскрывает приватные группы." TextWrapping="Wrap" Foreground="#C2CDDA" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </Grid>
+
+      <TextBlock Grid.Row="3" Text="Logs: logs/client.log · Status reflects verified behavior only." Foreground="#6F829B" FontSize="12" />
+    </Grid>
+  </ScrollViewer>
+</Window>

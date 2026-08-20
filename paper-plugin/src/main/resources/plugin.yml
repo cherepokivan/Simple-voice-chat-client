@@ -1,0 +1,7 @@
+name: StandaloneVoiceBridge
+version: '${project.version}'
+main: ru.cherepokivan.standalonevoicebridge.StandaloneVoiceBridgePlugin
+api-version: '1.21'
+author: cherepokivan
+description: Fail-closed integration point for a future officially supported standalone Simple Voice Chat bootstrap.
+depend: [voicechat]

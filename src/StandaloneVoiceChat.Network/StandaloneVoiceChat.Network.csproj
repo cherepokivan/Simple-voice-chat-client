@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../StandaloneVoiceChat.Protocol/StandaloneVoiceChat.Protocol.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,215 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="ru.cherepokivan.standalonevoicechat"
+4    android:versionCode="1"
+5    android:versionName="0.1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="29"
+9        android:targetSdkVersion="35" />
+10
+11    <uses-permission android:name="android.permission.INTERNET" />
+11-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:2:5-67
+11-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:2:22-64
+12    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+12-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:3:5-71
+12-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:3:22-68
+13    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+13-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:4:5-77
+13-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:4:22-74
+14    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+14-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:5:5-88
+14-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:5:22-85
+15    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+15-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:6:5-76
+15-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:6:22-73
+16    <!-- Requested only when the user selects the QR scanner. -->
+17    <uses-permission android:name="android.permission.CAMERA" />
+17-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:8:5-65
+17-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:8:22-62
+18
+19    <permission
+19-->[androidx.core:core:1.15.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/1a61afd81fb3678f6062741d553ee8dc/transformed/core-1.15.0/AndroidManifest.xml:22:5-24:47
+20        android:name="ru.cherepokivan.standalonevoicechat.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+20-->[androidx.core:core:1.15.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/1a61afd81fb3678f6062741d553ee8dc/transformed/core-1.15.0/AndroidManifest.xml:23:9-81
+21        android:protectionLevel="signature" />
+21-->[androidx.core:core:1.15.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/1a61afd81fb3678f6062741d553ee8dc/transformed/core-1.15.0/AndroidManifest.xml:24:9-44
+22
+23    <uses-permission android:name="ru.cherepokivan.standalonevoicechat.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" /> <!-- Don't require camera, as this requires a rear camera. This allows it to work on the Nexus 7 -->
+23-->[androidx.core:core:1.15.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/1a61afd81fb3678f6062741d553ee8dc/transformed/core-1.15.0/AndroidManifest.xml:26:5-97
+23-->[androidx.core:core:1.15.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/1a61afd81fb3678f6062741d553ee8dc/transformed/core-1.15.0/AndroidManifest.xml:26:22-94
+24    <uses-feature
+24-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:25:5-27:36
+25        android:name="android.hardware.camera"
+25-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:26:9-47
+26        android:required="false" />
+26-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:27:9-33
+27    <uses-feature
+27-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:28:5-30:36
+28        android:name="android.hardware.camera.front"
+28-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:29:9-53
+29        android:required="false" /> <!-- TODO replace above two with next line after Android 4.2 -->
+29-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:30:9-33
+30    <!-- <uses-feature android:name="android.hardware.camera.any"/> -->
+31    <uses-feature
+31-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:33:5-35:36
+32        android:name="android.hardware.camera.autofocus"
+32-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:34:9-57
+33        android:required="false" />
+33-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:35:9-33
+34    <uses-feature
+34-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:36:5-38:36
+35        android:name="android.hardware.camera.flash"
+35-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:37:9-53
+36        android:required="false" />
+36-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:38:9-33
+37    <uses-feature
+37-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:39:5-41:36
+38        android:name="android.hardware.screen.landscape"
+38-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:40:9-57
+39        android:required="false" />
+39-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:41:9-33
+40    <uses-feature
+40-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:42:5-44:36
+41        android:name="android.hardware.wifi"
+41-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:43:9-45
+42        android:required="false" />
+42-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:44:9-33
+43
+44    <application
+44-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:10:5-27:19
+45        android:allowBackup="false"
+45-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:11:9-36
+46        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+46-->[androidx.core:core:1.15.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/1a61afd81fb3678f6062741d553ee8dc/transformed/core-1.15.0/AndroidManifest.xml:28:18-86
+47        android:debuggable="true"
+48        android:extractNativeLibs="false"
+49        android:label="Simple Voice Chat"
+49-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:12:9-42
+50        android:theme="@style/Theme.StandaloneVoiceChat"
+50-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:14:9-57
+51        android:usesCleartextTraffic="false" >
+51-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:13:9-45
+52        <activity
+52-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:15:9-22:20
+53            android:name="ru.cherepokivan.standalonevoicechat.MainActivity"
+53-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:16:13-41
+54            android:exported="true" >
+54-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:17:13-36
+55            <intent-filter>
+55-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:18:13-21:29
+56                <action android:name="android.intent.action.MAIN" />
+56-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:19:17-69
+56-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:19:25-66
+57
+58                <category android:name="android.intent.category.LAUNCHER" />
+58-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:20:17-77
+58-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:20:27-74
+59            </intent-filter>
+60        </activity>
+61
+62        <service
+62-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:23:9-26:58
+63            android:name="ru.cherepokivan.standalonevoicechat.service.VoiceChatForegroundService"
+63-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:24:13-63
+64            android:exported="false"
+64-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:25:13-37
+65            android:foregroundServiceType="microphone" />
+65-->/home/ubuntu/Simple-voice-chat-client/android/app/src/main/AndroidManifest.xml:26:13-55
+66
+67        <activity
+67-->[androidx.compose.ui:ui-tooling-android:1.7.6] /home/ubuntu/.gradle/caches/8.11.1/transforms/e2f212c7bc2d4aa1b1295a34b23e01ab/transformed/ui-tooling-release/AndroidManifest.xml:23:9-25:39
+68            android:name="androidx.compose.ui.tooling.PreviewActivity"
+68-->[androidx.compose.ui:ui-tooling-android:1.7.6] /home/ubuntu/.gradle/caches/8.11.1/transforms/e2f212c7bc2d4aa1b1295a34b23e01ab/transformed/ui-tooling-release/AndroidManifest.xml:24:13-71
+69            android:exported="true" />
+69-->[androidx.compose.ui:ui-tooling-android:1.7.6] /home/ubuntu/.gradle/caches/8.11.1/transforms/e2f212c7bc2d4aa1b1295a34b23e01ab/transformed/ui-tooling-release/AndroidManifest.xml:25:13-36
+70        <activity
+70-->[androidx.compose.ui:ui-test-manifest:1.7.6] /home/ubuntu/.gradle/caches/8.11.1/transforms/5947b7033b13d45e361e4df2900e6539/transformed/ui-test-manifest-1.7.6/AndroidManifest.xml:23:9-25:39
+71            android:name="androidx.activity.ComponentActivity"
+71-->[androidx.compose.ui:ui-test-manifest:1.7.6] /home/ubuntu/.gradle/caches/8.11.1/transforms/5947b7033b13d45e361e4df2900e6539/transformed/ui-test-manifest-1.7.6/AndroidManifest.xml:24:13-63
+72            android:exported="true" />
+72-->[androidx.compose.ui:ui-test-manifest:1.7.6] /home/ubuntu/.gradle/caches/8.11.1/transforms/5947b7033b13d45e361e4df2900e6539/transformed/ui-test-manifest-1.7.6/AndroidManifest.xml:25:13-36
+73
+74        <provider
+74-->[androidx.emoji2:emoji2:1.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/bd6f95dcd6c1f117cf0bf309e8404f93/transformed/emoji2-1.3.0/AndroidManifest.xml:24:9-32:20
+75            android:name="androidx.startup.InitializationProvider"
+75-->[androidx.emoji2:emoji2:1.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/bd6f95dcd6c1f117cf0bf309e8404f93/transformed/emoji2-1.3.0/AndroidManifest.xml:25:13-67
+76            android:authorities="ru.cherepokivan.standalonevoicechat.androidx-startup"
+76-->[androidx.emoji2:emoji2:1.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/bd6f95dcd6c1f117cf0bf309e8404f93/transformed/emoji2-1.3.0/AndroidManifest.xml:26:13-68
+77            android:exported="false" >
+77-->[androidx.emoji2:emoji2:1.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/bd6f95dcd6c1f117cf0bf309e8404f93/transformed/emoji2-1.3.0/AndroidManifest.xml:27:13-37
+78            <meta-data
+78-->[androidx.emoji2:emoji2:1.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/bd6f95dcd6c1f117cf0bf309e8404f93/transformed/emoji2-1.3.0/AndroidManifest.xml:29:13-31:52
+79                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+79-->[androidx.emoji2:emoji2:1.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/bd6f95dcd6c1f117cf0bf309e8404f93/transformed/emoji2-1.3.0/AndroidManifest.xml:30:17-75
+80                android:value="androidx.startup" />
+80-->[androidx.emoji2:emoji2:1.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/bd6f95dcd6c1f117cf0bf309e8404f93/transformed/emoji2-1.3.0/AndroidManifest.xml:31:17-49
+81            <meta-data
+81-->[androidx.lifecycle:lifecycle-process:2.8.7] /home/ubuntu/.gradle/caches/8.11.1/transforms/827890458e7205a872658023ca1cc1c7/transformed/lifecycle-process-2.8.7/AndroidManifest.xml:29:13-31:52
+82                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+82-->[androidx.lifecycle:lifecycle-process:2.8.7] /home/ubuntu/.gradle/caches/8.11.1/transforms/827890458e7205a872658023ca1cc1c7/transformed/lifecycle-process-2.8.7/AndroidManifest.xml:30:17-78
+83                android:value="androidx.startup" />
+83-->[androidx.lifecycle:lifecycle-process:2.8.7] /home/ubuntu/.gradle/caches/8.11.1/transforms/827890458e7205a872658023ca1cc1c7/transformed/lifecycle-process-2.8.7/AndroidManifest.xml:31:17-49
+84            <meta-data
+84-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/830f0c7dbd62bb48e2c695b73893428f/transformed/profileinstaller-1.3.1/AndroidManifest.xml:29:13-31:52
+85                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+85-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/830f0c7dbd62bb48e2c695b73893428f/transformed/profileinstaller-1.3.1/AndroidManifest.xml:30:17-85
+86                android:value="androidx.startup" />
+86-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/830f0c7dbd62bb48e2c695b73893428f/transformed/profileinstaller-1.3.1/AndroidManifest.xml:31:17-49
+87        </provider>
+88
+89        <receiver
+89-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/830f0c7dbd62bb48e2c695b73893428f/transformed/profileinstaller-1.3.1/AndroidManifest.xml:34:9-52:20
+90            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+90-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/830f0c7dbd62bb48e2c695b73893428f/transformed/profileinstaller-1.3.1/AndroidManifest.xml:35:13-76
+91            android:directBootAware="false"
+91-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/830f0c7dbd62bb48e2c695b73893428f/transformed/profileinstaller-1.3.1/AndroidManifest.xml:36:13-44
+92            android:enabled="true"
+92-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/830f0c7dbd62bb48e2c695b73893428f/transformed/profileinstaller-1.3.1/AndroidManifest.xml:37:13-35
+93            android:exported="true"
+93-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/830f0c7dbd62bb48e2c695b73893428f/transformed/profileinstaller-1.3.1/AndroidManifest.xml:38:13-36
+94            android:permission="android.permission.DUMP" >
+94-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/830f0c7dbd62bb48e2c695b73893428f/transformed/profileinstaller-1.3.1/AndroidManifest.xml:39:13-57
+95            <intent-filter>
+95-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/830f0c7dbd62bb48e2c695b73893428f/transformed/profileinstaller-1.3.1/AndroidManifest.xml:40:13-42:29
+96                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+96-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/830f0c7dbd62bb48e2c695b73893428f/transformed/profileinstaller-1.3.1/AndroidManifest.xml:41:17-91
+96-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/830f0c7dbd62bb48e2c695b73893428f/transformed/profileinstaller-1.3.1/AndroidManifest.xml:41:25-88
+97            </intent-filter>
+98            <intent-filter>
+98-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/830f0c7dbd62bb48e2c695b73893428f/transformed/profileinstaller-1.3.1/AndroidManifest.xml:43:13-45:29
+99                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+99-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/830f0c7dbd62bb48e2c695b73893428f/transformed/profileinstaller-1.3.1/AndroidManifest.xml:44:17-85
+99-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/830f0c7dbd62bb48e2c695b73893428f/transformed/profileinstaller-1.3.1/AndroidManifest.xml:44:25-82
+100            </intent-filter>
+101            <intent-filter>
+101-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/830f0c7dbd62bb48e2c695b73893428f/transformed/profileinstaller-1.3.1/AndroidManifest.xml:46:13-48:29
+102                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+102-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/830f0c7dbd62bb48e2c695b73893428f/transformed/profileinstaller-1.3.1/AndroidManifest.xml:47:17-88
+102-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/830f0c7dbd62bb48e2c695b73893428f/transformed/profileinstaller-1.3.1/AndroidManifest.xml:47:25-85
+103            </intent-filter>
+104            <intent-filter>
+104-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/830f0c7dbd62bb48e2c695b73893428f/transformed/profileinstaller-1.3.1/AndroidManifest.xml:49:13-51:29
+105                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+105-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/830f0c7dbd62bb48e2c695b73893428f/transformed/profileinstaller-1.3.1/AndroidManifest.xml:50:17-95
+105-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/830f0c7dbd62bb48e2c695b73893428f/transformed/profileinstaller-1.3.1/AndroidManifest.xml:50:25-92
+106            </intent-filter>
+107        </receiver>
+108
+109        <activity
+109-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:47:9-53:63
+110            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+110-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:48:13-74
+111            android:clearTaskOnLaunch="true"
+111-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:49:13-45
+112            android:screenOrientation="sensorLandscape"
+112-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:50:13-56
+113            android:stateNotNeeded="true"
+113-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:51:13-42
+114            android:theme="@style/zxing_CaptureTheme"
+114-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:52:13-54
+115            android:windowSoftInputMode="stateAlwaysHidden" />
+115-->[com.journeyapps:zxing-android-embedded:4.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/5ad4087b8121284b89ec22bf02d2decc/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:53:13-60
+116    </application>
+117
+118</manifest>

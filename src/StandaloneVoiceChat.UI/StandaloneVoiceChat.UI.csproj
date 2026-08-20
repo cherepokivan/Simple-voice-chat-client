@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>SimpleVoiceChatClient</AssemblyName>
+    <RootNamespace>StandaloneVoiceChat.UI</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.2.4" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.2.4" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.4" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.4" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../StandaloneVoiceChat.Audio/StandaloneVoiceChat.Audio.csproj" />
+    <ProjectReference Include="../StandaloneVoiceChat.Client/StandaloneVoiceChat.Client.csproj" />
+    <ProjectReference Include="../StandaloneVoiceChat.Network/StandaloneVoiceChat.Network.csproj" />
+    <ProjectReference Include="../StandaloneVoiceChat.Protocol/StandaloneVoiceChat.Protocol.csproj" />
+  </ItemGroup>
+</Project>

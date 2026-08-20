@@ -1,0 +1,26 @@
+# .NET
+[Bb]in/
+[Oo]bj/
+TestResults/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# JetBrains / VS Code
+.idea/
+.vs/
+.vscode/
+
+# Runtime data
+logs/
+settings.local.json
+*.log
+
+# Java / Maven
+paper-plugin/target/
+*.class
+
+# OS
+.DS_Store
+Thumbs.db

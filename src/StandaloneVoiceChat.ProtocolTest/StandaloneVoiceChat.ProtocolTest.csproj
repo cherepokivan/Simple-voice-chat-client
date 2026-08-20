@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>StandaloneVoiceChat.ProtocolTest</AssemblyName>
+    <RootNamespace>StandaloneVoiceChat.ProtocolTest</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../StandaloneVoiceChat.Client/StandaloneVoiceChat.Client.csproj" />
+    <ProjectReference Include="../StandaloneVoiceChat.Protocol/StandaloneVoiceChat.Protocol.csproj" />
+    <ProjectReference Include="../StandaloneVoiceChat.Network/StandaloneVoiceChat.Network.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,103 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  client:
+    name: Windows client
+    runs-on: windows-latest
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Calculate build version
+        id: version
+        shell: bash
+        run: |
+          run=${{ github.run_number }}
+          major=0
+          minor=$(((run / 10) % 10))
+          patch=$((run % 10))
+          echo "value=${major}.${minor}.${patch}" >> "$GITHUB_OUTPUT"
+      - name: Restore
+        run: dotnet restore StandaloneVoiceChat.sln
+      - name: Build
+        run: dotnet build StandaloneVoiceChat.sln --configuration Release --no-restore -p:Version=${{ steps.version.outputs.value }}
+      - name: Test
+        run: dotnet test StandaloneVoiceChat.sln --configuration Release --no-build --logger "trx;LogFileName=results.trx"
+      - name: Publish self-contained Windows executable
+        run: >
+          dotnet publish src/StandaloneVoiceChat.UI/StandaloneVoiceChat.UI.csproj
+          --configuration Release
+          --no-restore
+          --runtime win-x64
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:Version=${{ steps.version.outputs.value }}
+          --output artifacts/win-x64
+      - name: Upload client artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimpleVoiceChatClient-win-x64-${{ steps.version.outputs.value }}
+          path: artifacts/win-x64/
+          if-no-files-found: error
+
+  android-client:
+    name: Android client
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - name: Build Android APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew :protocol:test :app:assembleDebug
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimpleVoiceChatClient-Android
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+  paper-bridge:
+    name: Paper bridge
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Calculate build version
+        id: version
+        shell: bash
+        run: |
+          run=${{ github.run_number }}
+          major=0
+          minor=$(((run / 10) % 10))
+          patch=$((run % 10))
+          echo "value=${major}.${minor}.${patch}" >> "$GITHUB_OUTPUT"
+      - name: Build bridge
+        run: mvn --batch-mode --file paper-plugin/pom.xml -Drevision=${{ steps.version.outputs.value }} clean verify
+      - name: Upload bridge artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: StandaloneVoiceBridge-${{ steps.version.outputs.value }}
+          path: paper-plugin/target/StandaloneVoiceBridge-*.jar
+          if-no-files-found: error

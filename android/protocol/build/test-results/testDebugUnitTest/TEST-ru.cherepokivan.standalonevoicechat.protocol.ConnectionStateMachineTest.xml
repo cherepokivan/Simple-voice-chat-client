@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ru.cherepokivan.standalonevoicechat.protocol.ConnectionStateMachineTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-20T22:36:27" hostname="0eda41a0452b" time="0.029">
+  <properties/>
+  <testcase name="rejects invalid transition" classname="ru.cherepokivan.standalonevoicechat.protocol.ConnectionStateMachineTest" time="0.029"/>
+  <testcase name="allows the expected handshake path" classname="ru.cherepokivan.standalonevoicechat.protocol.ConnectionStateMachineTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

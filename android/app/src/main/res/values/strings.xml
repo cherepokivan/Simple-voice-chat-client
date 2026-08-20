@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Simple Voice Chat</string>
+    <string name="voice_channel_name">Voice chat</string>
+    <string name="voice_channel_description">Состояние фоновой сессии голосового чата</string>
+</resources>

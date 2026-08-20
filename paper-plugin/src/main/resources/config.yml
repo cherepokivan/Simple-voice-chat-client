@@ -1,0 +1,10 @@
+enabled: true
+
+standalone-client:
+  enabled: true
+
+# Intentionally disabled. This project does not expose an HTTP/API endpoint until an upstream-supported,
+# authenticated bootstrap contract exists.
+api:
+  enabled: false
+  port: 25576
