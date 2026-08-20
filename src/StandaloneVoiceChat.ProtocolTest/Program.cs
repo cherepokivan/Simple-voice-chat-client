@@ -15,7 +15,7 @@ try
     int minecraftPort = args.Length >= 2 ? int.Parse(args[1], System.Globalization.CultureInfo.InvariantCulture) : 25565;
     int voicePort = args.Length >= 3 ? int.Parse(args[2], System.Globalization.CultureInfo.InvariantCulture) : 24454;
     ServerEndpoint endpoint = ServerEndpoint.Create(host, minecraftPort, voicePort);
-    var coordinator = new VoiceChatSessionCoordinator(new ConnectionDiagnosticsService(), new SimpleVoiceChat26Adapter());
+    var coordinator = new VoiceChatSessionCoordinator(new SimpleVoiceChat26Adapter());
     ConnectionAttemptResult result = await coordinator.DiagnoseAndConnectAsync(endpoint, bootstrap: null, CancellationToken.None);
 
     Console.WriteLine($"State: {result.State}");

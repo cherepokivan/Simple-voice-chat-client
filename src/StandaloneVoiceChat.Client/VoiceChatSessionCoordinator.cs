@@ -9,12 +9,10 @@ namespace StandaloneVoiceChat.Client;
 /// </summary>
 public sealed class VoiceChatSessionCoordinator
 {
-    private readonly ConnectionDiagnosticsService _diagnostics;
     private readonly ISvcProtocolAdapter _protocolAdapter;
 
-    public VoiceChatSessionCoordinator(ConnectionDiagnosticsService diagnostics, ISvcProtocolAdapter protocolAdapter)
+    public VoiceChatSessionCoordinator(ISvcProtocolAdapter protocolAdapter)
     {
-        _diagnostics = diagnostics;
         _protocolAdapter = protocolAdapter;
         StateMachine = new ConnectionStateMachine();
     }
@@ -27,7 +25,7 @@ public sealed class VoiceChatSessionCoordinator
         CancellationToken cancellationToken)
     {
         StateMachine.TransitionTo(ConnectionState.Connecting);
-        IReadOnlyList<DiagnosticCheck> checks = await _diagnostics.ProbeAsync(endpoint, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<DiagnosticCheck> checks = await ConnectionDiagnosticsService.ProbeAsync(endpoint, cancellationToken).ConfigureAwait(false);
 
         if (bootstrap is null)
         {

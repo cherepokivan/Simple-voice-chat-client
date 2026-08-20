@@ -21,7 +21,7 @@ public sealed record DiagnosticCheck(string Name, DiagnosticStatus Status, strin
 /// </summary>
 public sealed class ConnectionDiagnosticsService
 {
-    public async Task<IReadOnlyList<DiagnosticCheck>> ProbeAsync(ServerEndpoint endpoint, CancellationToken cancellationToken)
+    public static async Task<IReadOnlyList<DiagnosticCheck>> ProbeAsync(ServerEndpoint endpoint, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(endpoint);
         var checks = new List<DiagnosticCheck>();
