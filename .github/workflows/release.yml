@@ -1,0 +1,96 @@
+name: Release
+
+on:
+  workflow_run:
+    workflows: [Build]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  release:
+    name: Create GitHub release
+    # A release is allowed only after a successful push-to-main build, never after a pull-request run.
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: automatic-releases
+      cancel-in-progress: false
+
+    steps:
+      - name: Check out the successfully built commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+
+      - name: Download successful build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          path: release-assets
+
+      - name: Calculate next release tag
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
+
+          latest_tag="$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n 1 || true)"
+          if [[ -z "$latest_tag" ]]; then
+            next_tag="v1.0.0"
+          else
+            version="${latest_tag#v}"
+            IFS='.' read -r major minor patch <<< "$version"
+            if [[ ! "$major" =~ ^[0-9]+$ || ! "$minor" =~ ^[0-9]$ || ! "$patch" =~ ^[0-9]$ ]]; then
+              echo "Unsupported existing release tag: $latest_tag" >&2
+              exit 1
+            fi
+
+            patch=$((patch + 1))
+            if (( patch > 9 )); then
+              patch=0
+              minor=$((minor + 1))
+              if (( minor > 9 )); then
+                minor=0
+                major=$((major + 1))
+              fi
+            fi
+            next_tag="v${major}.${minor}.${patch}"
+          fi
+
+          echo "tag=$next_tag" >> "$GITHUB_OUTPUT"
+          echo "Next release: $next_tag"
+
+      - name: Validate release assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t assets < <(find release-assets -type f \( -name '*.exe' -o -name '*.apk' -o -name '*.jar' \) | sort)
+          printf '%s\n' "${assets[@]}"
+          [[ ${#assets[@]} -eq 3 ]] || {
+            echo "Expected exactly three release artifacts (.exe, .apk, .jar); found ${#assets[@]}." >&2
+            exit 1
+          }
+
+      - name: Create tag and GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+          TARGET_SHA: ${{ github.event.workflow_run.head_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t assets < <(find release-assets -type f \( -name '*.exe' -o -name '*.apk' -o -name '*.jar' \) | sort)
+          gh release create "$RELEASE_TAG" "${assets[@]}" \
+            --repo "${{ github.repository }}" \
+            --target "$TARGET_SHA" \
+            --title "Simple Voice Chat Standalone Client $RELEASE_TAG" \
+            --generate-notes
