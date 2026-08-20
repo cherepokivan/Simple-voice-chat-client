@@ -5,7 +5,7 @@ namespace StandaloneVoiceChat.Protocol;
 /// </summary>
 public sealed class ConnectionStateMachine
 {
-    private static readonly IReadOnlyDictionary<ConnectionState, IReadOnlySet<ConnectionState>> AllowedTransitions =
+    private static readonly Dictionary<ConnectionState, IReadOnlySet<ConnectionState>> AllowedTransitions =
         new Dictionary<ConnectionState, IReadOnlySet<ConnectionState>>
         {
             [ConnectionState.Disconnected] = new HashSet<ConnectionState> { ConnectionState.Connecting },
