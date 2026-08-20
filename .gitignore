@@ -21,6 +21,15 @@ settings.local.json
 paper-plugin/target/
 *.class
 
+# Android / Gradle
+android/build/
+android/app/build/
+android/protocol/build/
+android/.gradle/
+android/local.properties
+*.apk
+*.aab
+
 # OS
 .DS_Store
 Thumbs.db
