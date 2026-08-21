@@ -1,4 +1,4 @@
-# Simple Voice Chat Standalone Client
+# Simple Voice Chat Client
 
 **Standalone multi-platform client foundation for Simple Voice Chat.** This repository provides both a **Windows (.NET 8 Avalonia)** and an **Android (Kotlin/Compose)** client. The repository is intentionally security-first: it will not forge Minecraft identities, manufacture SVC session secrets, bypass whitelist or permissions, enumerate private groups, or weaken encryption.
 
