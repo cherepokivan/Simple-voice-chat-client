@@ -112,15 +112,19 @@ export function handle(handler) {
   return async (req, res) => {
     try {
       const output = await handler(req);
-      res.status(output.statusCode).set(output.headers).send(output.body);
+      res.status(output.statusCode);
+      for (const [header, value] of Object.entries(output.headers)) {
+        res.setHeader(header, value);
+      }
+      res.send(output.body);
     } catch (error) {
       const status = Number.isInteger(error?.status) ? error.status : 503;
       if (status >= 500) console.error('Bridge request failed:', error?.message ?? 'unknown error');
-      res.status(status).set({
-        'content-type': 'application/json; charset=utf-8',
-        'cache-control': 'no-store',
-        'x-content-type-options': 'nosniff'
-      }).send(JSON.stringify({ error: status >= 500 ? 'Service unavailable.' : error.message }));
+      res.status(status);
+      res.setHeader('content-type', 'application/json; charset=utf-8');
+      res.setHeader('cache-control', 'no-store');
+      res.setHeader('x-content-type-options', 'nosniff');
+      res.send(JSON.stringify({ error: status >= 500 ? 'Service unavailable.' : error.message }));
     }
   };
 }

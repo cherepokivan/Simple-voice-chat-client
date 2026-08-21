@@ -1,4 +1,4 @@
-import { assertPluginSignature, handle, httpError, json, key, readJson, redis } from '../../lib/bridge.mjs';
+import { assertPluginSignature, handle, httpError, json, key, readJson, redis } from '../../../lib/bridge.js';
 
 export default handle(async (req) => {
   const body = await readJson(req);

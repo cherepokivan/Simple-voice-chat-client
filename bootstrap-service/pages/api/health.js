@@ -1,4 +1,4 @@
-import { configuredServerId, handle, json, redis } from '../lib/bridge.mjs';
+import { configuredServerId, handle, json, redis } from '../../lib/bridge.js';
 
 export default handle(async (req) => {
   if (req.method !== 'GET') return json({ error: 'Method not allowed.' }, 405);

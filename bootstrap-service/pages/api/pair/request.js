@@ -1,4 +1,4 @@
-import { handle, httpError, json, key, normalizeOtp, randomId, readJson, redis, sha256, ttl } from '../../lib/bridge.mjs';
+import { handle, httpError, json, key, normalizeOtp, randomId, readJson, redis, sha256, ttl } from '../../../lib/bridge.js';
 
 export default handle(async (req) => {
   const body = await readJson(req);

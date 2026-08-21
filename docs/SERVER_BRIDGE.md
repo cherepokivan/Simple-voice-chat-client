@@ -67,3 +67,39 @@ SVC требует, чтобы игрок находился в мире (име
 - Обработчик входа игроков для автоматической генерации токенов.
 
 *Примечание:* Извлечение реального секрета SVC требует рефлексии к внутренним классам Simple Voice Chat, что делает плагин зависимым от конкретной версии SVC.
+
+## Внешний HTTPS relay без дополнительного порта
+
+Для хостингов Minecraft, которые не позволяют открыть дополнительный входящий TCP-порт, создан отдельный Vercel-проект `simple-voice-bootstrap-relay-next`. Он принимает только HTTPS-запросы от клиентов и получает от Paper-плагина только исходящие HTTPS-запросы. Поэтому Minecraft-хостинг не принимает новые входящие соединения.
+
+> Публичный адрес relay: `https://simple-voice-bootstrap-relay-next.vercel.app`
+
+### Обязательные environment variables Vercel
+
+| Переменная | Назначение | Требование |
+|---|---|---|
+| `UPSTASH_REDIS_REST_URL` | URL приватного Upstash Redis REST endpoint | Не публиковать в коде или клиенте. |
+| `UPSTASH_REDIS_REST_TOKEN` | Токен доступа к Upstash Redis | Не публиковать и не записывать в Paper config. |
+| `BRIDGE_SERVER_ID` | Идентификатор вашего Minecraft-сервера | Минимум 3 символа, например `my-minecraft-server`. |
+| `BRIDGE_SHARED_SECRET` | Общий секрет HMAC между Vercel relay и Paper-плагином | Не менее 32 случайных символов; одинаковый в Vercel и `paper-plugin/config.yml`; не передаётся standalone-клиентам. |
+
+Relay возвращает короткоживущий bootstrap только после атомарного одноразового обмена кода. Redis хранит хеш кода, а не исходный одноразовый код, и удаляет записи по TTL. До настройки этих переменных `GET /api/health` корректно отвечает `503 Service unavailable`.
+
+### Paper config
+
+В `plugins/StandaloneVoiceBridge/config.yml` включите `external-bootstrap.enabled` только после настройки Vercel-переменных. Укажите:
+
+```yaml
+external-bootstrap:
+  enabled: true
+  base-url: "https://simple-voice-bootstrap-relay-next.vercel.app"
+  server-id: "my-minecraft-server"
+  shared-secret: "тот-же-длинный-случайный-секрет-что-и-в-vercel"
+  public-voice-host: "play.example.com"
+```
+
+`public-voice-host` — существующий публичный хост вашего SVC UDP-сервера. Он не открывает новый порт. Никогда не помещайте `shared-secret`, Redis credentials, session secret или pairing code в QR-код, лог или Git-репозиторий.
+
+## Ограничение протокольного адаптера
+
+Windows и Android уже умеют отправить одноразовый код в relay и безопасно получить bootstrap. Но передача голоса не будет запущена до успешной проверки версии-специфичного SVC UDP/Opus адаптера на вашем сервере. Клиенты очищают секрет из памяти сразу после текущей проверки, а не выполняют неподтверждённые UDP-пакеты.

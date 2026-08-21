@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import ru.cherepokivan.standalonevoicechat.data.SavedServer
 import ru.cherepokivan.standalonevoicechat.data.SavedServersRepository
+import ru.cherepokivan.standalonevoicechat.network.BootstrapRelayClient
 import ru.cherepokivan.standalonevoicechat.network.DiagnosticCheck
 import ru.cherepokivan.standalonevoicechat.network.SafeUdpDiagnostics
 import ru.cherepokivan.standalonevoicechat.protocol.ConnectionState
@@ -18,6 +19,7 @@ import ru.cherepokivan.standalonevoicechat.protocol.ServerSharePayload
 class VoiceChatViewModel(application: Application) : AndroidViewModel(application) {
     private val stateMachine = ConnectionStateMachine()
     private val diagnostics = SafeUdpDiagnostics()
+    private val bootstrapRelayClient = BootstrapRelayClient()
     private val savedServersRepository = SavedServersRepository(application)
     private val mutableState = MutableStateFlow(
         VoiceChatUiState(savedServers = savedServersRepository.getAll())
@@ -25,6 +27,8 @@ class VoiceChatViewModel(application: Application) : AndroidViewModel(applicatio
     val state: StateFlow<VoiceChatUiState> = mutableState.asStateFlow()
 
     fun updateHost(host: String) = update { copy(host = host) }
+    fun updateBootstrapRelayUrl(url: String) = update { copy(bootstrapRelayUrl = url) }
+    fun updatePairingCode(code: String) = update { copy(pairingCode = code) }
     fun updateMinecraftPort(port: String) = update { copy(minecraftPort = port) }
     fun updateVoicePort(port: String) = update { copy(voicePort = port) }
     fun updateInputVolume(volume: Float) = update { copy(inputVolume = volume) }
@@ -46,14 +50,34 @@ class VoiceChatViewModel(application: Application) : AndroidViewModel(applicatio
         stateMachine.transitionTo(ConnectionState.Connecting)
         update { copy(connectionState = stateMachine.state, statusMessage = "Checking endpoint and local UDP prerequisites…") }
         viewModelScope.launch {
-            val checks = diagnostics.probe(current.host.trim(), voicePort)
-            stateMachine.fail()
-            update {
-                copy(
-                    diagnostics = checks,
-                    connectionState = stateMachine.state,
-                    statusMessage = "Official server bootstrap is required. The app will not create an identity, secret or inferred UDP handshake."
-                )
+            var bootstrapVerified = false
+            try {
+                if (current.pairingCode.isNotBlank()) {
+                    stateMachine.transitionTo(ConnectionState.Authenticating)
+                    update { copy(connectionState = stateMachine.state, statusMessage = "Подтверждаем одноразовый код через защищённый relay…") }
+                    val bootstrap = bootstrapRelayClient.exchange(current.bootstrapRelayUrl, current.pairingCode)
+                    try {
+                        bootstrapVerified = true
+                    } finally {
+                        bootstrap.clearSecret()
+                    }
+                }
+                val checks = diagnostics.probe(current.host.trim(), voicePort)
+                stateMachine.fail()
+                update {
+                    copy(
+                        diagnostics = checks,
+                        connectionState = stateMachine.state,
+                        statusMessage = if (bootstrapVerified) {
+                            "Bootstrap подтверждён сервером. Прямая передача SVC UDP/Opus остаётся отключённой до проверки версионного адаптера."
+                        } else {
+                            "Введите код из Minecraft для получения серверного bootstrap. Приложение не создаёт UUID, секрет или предполагаемый UDP handshake."
+                        }
+                    )
+                }
+            } catch (exception: Exception) {
+                stateMachine.fail()
+                update { copy(connectionState = stateMachine.state, statusMessage = exception.message ?: "Не удалось подтвердить код подключения.") }
             }
         }
     }
@@ -89,6 +113,8 @@ class VoiceChatViewModel(application: Application) : AndroidViewModel(applicatio
 data class VoiceChatUiState(
     val serverName: String = "",
     val host: String = "",
+    val bootstrapRelayUrl: String = "https://simple-voice-bootstrap-relay.vercel.app",
+    val pairingCode: String = "",
     val minecraftPort: String = "25565",
     val voicePort: String = "24454",
     val connectionState: ConnectionState = ConnectionState.Disconnected,

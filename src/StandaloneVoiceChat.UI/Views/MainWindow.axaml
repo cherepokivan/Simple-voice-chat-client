@@ -34,6 +34,10 @@
               <TextBlock Text="Connection" Classes="section" />
               <TextBlock Text="{Binding ConnectionStateText}" FontSize="18" FontWeight="SemiBold" Foreground="{Binding ConnectionStateBrush}" />
               <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" Foreground="#C2CDDA" />
+              <TextBlock Text="Bootstrap relay (HTTPS)" Foreground="#9FB0C5" FontSize="12" />
+              <TextBox Text="{Binding BootstrapRelayUrl}" Watermark="https://relay.example.com" />
+              <TextBlock Text="Одноразовый код из Minecraft" Foreground="#9FB0C5" FontSize="12" />
+              <TextBox Text="{Binding PairingCode}" Watermark="ABCD-EFGH-IJKL" />
               <Button Content="{Binding ConnectButtonText}" Command="{Binding ToggleConnectionCommand}" HorizontalAlignment="Left" MinWidth="155" />
               <CheckBox Content="Connect automatically" IsChecked="{Binding ConnectAutomatically}" />
             </StackPanel>

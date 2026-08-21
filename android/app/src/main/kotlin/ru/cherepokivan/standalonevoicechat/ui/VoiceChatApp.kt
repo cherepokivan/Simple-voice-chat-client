@@ -56,6 +56,8 @@ import ru.cherepokivan.standalonevoicechat.viewmodel.VoiceChatUiState
 fun VoiceChatApp(
     state: VoiceChatUiState,
     onHostChanged: (String) -> Unit,
+    onBootstrapRelayUrlChanged: (String) -> Unit,
+    onPairingCodeChanged: (String) -> Unit,
     onMinecraftPortChanged: (String) -> Unit,
     onVoicePortChanged: (String) -> Unit,
     onConnect: () -> Unit,
@@ -91,6 +93,8 @@ fun VoiceChatApp(
                         OutlinedTextField(value = state.minecraftPort, onValueChange = onMinecraftPortChanged, label = { Text("Minecraft") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.weight(1f), singleLine = true)
                         OutlinedTextField(value = state.voicePort, onValueChange = onVoicePortChanged, label = { Text("Voice UDP") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.weight(1f), singleLine = true)
                     }
+                    OutlinedTextField(value = state.bootstrapRelayUrl, onValueChange = onBootstrapRelayUrlChanged, label = { Text("Bootstrap relay (HTTPS)") }, placeholder = { Text("https://relay.example.com") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                    OutlinedTextField(value = state.pairingCode, onValueChange = onPairingCodeChanged, label = { Text("Одноразовый код из Minecraft") }, placeholder = { Text("ABCD-EFGH-IJKL") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(onClick = onConnect, modifier = Modifier.weight(1f)) { Text("Connect") }
                         FilledTonalButton(onClick = onSaveServer, modifier = Modifier.weight(1f)) { Text("Save server") }

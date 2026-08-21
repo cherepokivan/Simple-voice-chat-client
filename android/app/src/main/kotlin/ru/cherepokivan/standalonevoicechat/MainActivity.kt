@@ -44,6 +44,8 @@ class MainActivity : ComponentActivity() {
                 VoiceChatApp(
                     state = state,
                     onHostChanged = viewModel::updateHost,
+                    onBootstrapRelayUrlChanged = viewModel::updateBootstrapRelayUrl,
+                    onPairingCodeChanged = viewModel::updatePairingCode,
                     onMinecraftPortChanged = viewModel::updateMinecraftPort,
                     onVoicePortChanged = viewModel::updateVoicePort,
                     onConnect = viewModel::connectSafely,

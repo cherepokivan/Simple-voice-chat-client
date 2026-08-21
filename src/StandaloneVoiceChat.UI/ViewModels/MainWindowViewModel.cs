@@ -10,6 +10,7 @@ namespace StandaloneVoiceChat.UI.ViewModels;
 public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
 {
     private readonly VoiceChatSessionCoordinator _coordinator;
+    private readonly BootstrapRelayClient _bootstrapRelayClient = new();
     private CancellationTokenSource? _connectionCancellation;
 
     public MainWindowViewModel(VoiceChatSessionCoordinator coordinator)
@@ -41,6 +42,12 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     private string _serverHost = string.Empty;
+
+    [ObservableProperty]
+    private string _bootstrapRelayUrl = "https://simple-voice-bootstrap-relay.vercel.app";
+
+    [ObservableProperty]
+    private string _pairingCode = string.Empty;
 
     [ObservableProperty]
     private decimal _minecraftPort = 25565;
@@ -110,14 +117,29 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
             OnPropertyChanged(nameof(ConnectButtonText));
             StatusMessage = "Checking endpoint and local network prerequisites…";
 
-            ConnectionAttemptResult result = await _coordinator.DiagnoseAndConnectAsync(endpoint, bootstrap: null, _connectionCancellation.Token);
-            Diagnostics.Clear();
+            SessionBootstrap? bootstrap = null;
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(PairingCode))
+                {
+                    StatusMessage = "Подтверждаем одноразовый код через защищённый relay…";
+                    bootstrap = await _bootstrapRelayClient.ExchangeAsync(new Uri(BootstrapRelayUrl), PairingCode, _connectionCancellation.Token);
+                    StatusMessage = "Bootstrap подтверждён сервером. Запускаем штатный handshake…";
+                }
+
+                ConnectionAttemptResult result = await _coordinator.DiagnoseAndConnectAsync(endpoint, bootstrap, _connectionCancellation.Token);
+                Diagnostics.Clear();
             foreach (DiagnosticCheck check in result.Diagnostics)
             {
                 Diagnostics.Add(new DiagnosticItemViewModel(check.Name, $"{check.Status}: {check.Detail}"));
             }
 
-            StatusMessage = result.Message;
+                StatusMessage = result.Message;
+            }
+            finally
+            {
+                bootstrap?.Dispose();
+            }
         }
         catch (OperationCanceledException)
         {

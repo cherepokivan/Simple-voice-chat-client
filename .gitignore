@@ -33,6 +33,7 @@ android/local.properties
 
 # Bootstrap service
 bootstrap-service/node_modules/
+bootstrap-service/.next/
 bootstrap-service/.env
 bootstrap-service/.vercel/
 
