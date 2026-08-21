@@ -14,10 +14,12 @@ import java.util.Objects;
 final class StandalonePairingListener implements Listener {
     private final StandaloneTokenService tokenService;
     private final boolean automaticIssueEnabled;
+    private final BootstrapRelay bootstrapRelay;
 
-    StandalonePairingListener(StandaloneTokenService tokenService, boolean automaticIssueEnabled) {
+    StandalonePairingListener(StandaloneTokenService tokenService, boolean automaticIssueEnabled, BootstrapRelay bootstrapRelay) {
         this.tokenService = Objects.requireNonNull(tokenService, "tokenService");
         this.automaticIssueEnabled = automaticIssueEnabled;
+        this.bootstrapRelay = bootstrapRelay;
     }
 
     @EventHandler
@@ -29,10 +31,23 @@ final class StandalonePairingListener implements Listener {
     }
 
     void issueAndSend(Player player, String reason) {
+        if (bootstrapRelay == null) {
+            player.sendMessage(Component.text("[Standalone Voice] Внешний bootstrap-сервис не настроен на сервере.", NamedTextColor.RED));
+            return;
+        }
+
         String token = tokenService.issue(player.getUniqueId());
+        bootstrapRelay.register(player.getUniqueId(), token,
+            () -> sendToken(player, token, reason),
+            () -> player.sendMessage(Component.text("[Standalone Voice] Не удалось подготовить одноразовый код. Повторите попытку позже.", NamedTextColor.RED)));
+    }
+
+    private void sendToken(Player player, String token, String reason) {
+        if (!player.isOnline()) {
+            return;
+        }
         String displayedToken = StandaloneTokenService.display(token);
         long lifetimeSeconds = tokenService.lifetime().toSeconds();
-
         player.sendMessage(Component.text("[Standalone Voice] ", NamedTextColor.AQUA)
             .append(Component.text("Токен подключения " + reason + ".", NamedTextColor.GREEN)));
         player.sendMessage(Component.text("Код: ", NamedTextColor.GRAY)

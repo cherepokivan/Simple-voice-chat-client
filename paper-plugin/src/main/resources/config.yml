@@ -11,8 +11,15 @@ pairing:
   # Uses an alphabet without ambiguous characters (I, O, 0, 1).
   token-length: 12
 
-# Intentionally disabled. This project does not expose an HTTP/API endpoint until an upstream-supported,
-# authenticated bootstrap contract exists.
-api:
+# The relay makes only outgoing HTTPS requests. It opens no additional inbound port on this host.
+# Keep it disabled until the Vercel service environment and values below are configured.
+external-bootstrap:
   enabled: false
-  port: 25576
+  base-url: "https://replace-with-your-vercel-service.vercel.app"
+  server-id: "replace-with-your-server-id"
+  # Set the same strong secret in Vercel as BRIDGE_SHARED_SECRET. Never share or commit it.
+  shared-secret: ""
+  # Public hostname or IP of the existing SVC UDP endpoint. Do not include protocol or port.
+  public-voice-host: ""
+  # Polling frequency for a claimed pairing request; 20 ticks = one second.
+  poll-interval-ticks: 20

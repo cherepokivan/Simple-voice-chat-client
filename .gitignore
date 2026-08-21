@@ -1,6 +1,7 @@
 # .NET
 [Bb]in/
 [Oo]bj/
+artifacts/
 TestResults/
 *.user
 *.suo
@@ -29,6 +30,11 @@ android/.gradle/
 android/local.properties
 *.apk
 *.aab
+
+# Bootstrap service
+bootstrap-service/node_modules/
+bootstrap-service/.env
+bootstrap-service/.vercel/
 
 # OS
 .DS_Store

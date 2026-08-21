@@ -12,6 +12,7 @@ import java.time.Duration;
  */
 public final class StandaloneVoiceBridgePlugin extends JavaPlugin {
     private StandaloneTokenService tokenService;
+    private BootstrapRelay bootstrapRelay;
 
     @Override
     public void onEnable() {
@@ -35,9 +36,11 @@ public final class StandaloneVoiceBridgePlugin extends JavaPlugin {
         int tokenLifetimeSeconds = getConfig().getInt("pairing.token-lifetime-seconds", 120);
         int tokenLength = getConfig().getInt("pairing.token-length", 12);
         tokenService = new StandaloneTokenService(Duration.ofSeconds(tokenLifetimeSeconds), tokenLength);
+        bootstrapRelay = createBootstrapRelay();
         StandalonePairingListener pairingListener = new StandalonePairingListener(
             tokenService,
-            getConfig().getBoolean("pairing.issue-on-player-join", true));
+            getConfig().getBoolean("pairing.issue-on-player-join", true),
+            bootstrapRelay);
         getServer().getPluginManager().registerEvents(pairingListener, this);
 
         PluginCommand command = getCommand("voice");
@@ -50,10 +53,46 @@ public final class StandaloneVoiceBridgePlugin extends JavaPlugin {
         }
 
         getLogger().info("Standalone pairing tokens are enabled. Tokens are issued only through authenticated Minecraft sessions.");
-        getLogger().warning("An external bootstrap endpoint remains disabled until a version-specific, authenticated SVC adapter is implemented.");
+        if (bootstrapRelay == null) {
+            getLogger().warning("External bootstrap relay is disabled or incomplete; no standalone token will be shown.");
+        } else {
+            getLogger().info("External bootstrap relay is enabled. The Minecraft host opens no incoming bridge port.");
+        }
+    }
 
-        if (getConfig().getBoolean("api.enabled", false)) {
-            getLogger().warning("api.enabled is ignored. No HTTP endpoint is started by this fail-closed bridge.");
+    @Override
+    public void onDisable() {
+        if (bootstrapRelay != null) {
+            bootstrapRelay.close();
+            bootstrapRelay = null;
+        }
+    }
+
+    private BootstrapRelay createBootstrapRelay() {
+        if (!getConfig().getBoolean("external-bootstrap.enabled", false)) {
+            return null;
+        }
+        try {
+            org.bukkit.plugin.Plugin voicechatPlugin = getServer().getPluginManager().getPlugin("voicechat");
+            if (voicechatPlugin == null || !voicechatPlugin.isEnabled()) {
+                throw new IllegalStateException("Simple Voice Chat plugin is unavailable.");
+            }
+            ExternalBootstrapClient client = new ExternalBootstrapClient(
+                getConfig().getString("external-bootstrap.base-url", ""),
+                getConfig().getString("external-bootstrap.server-id", ""),
+                getConfig().getString("external-bootstrap.shared-secret", ""));
+            SVCReflectionBootstrapIssuer issuer = new SVCReflectionBootstrapIssuer(
+                voicechatPlugin,
+                getConfig().getString("external-bootstrap.public-voice-host", ""));
+            return new BootstrapRelay(
+                this,
+                tokenService,
+                client,
+                issuer,
+                getConfig().getLong("external-bootstrap.poll-interval-ticks", 20L));
+        } catch (RuntimeException exception) {
+            getLogger().severe("External bootstrap relay configuration is invalid: " + exception.getMessage());
+            return null;
         }
     }
 }
