@@ -33,10 +33,17 @@ class SvcUdpTransport(private val bootstrap: SessionBootstrap) : AutoCloseable {
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, GCMParameterSpec(128, nonce))
         val ciphertextWithTag = cipher.doFinal(unencryptedData)
 
-        val datagram = ByteArray(16 + 12 + ciphertextWithTag.size)
-        System.arraycopy(playerIdBytes, 0, datagram, 0, 16)
-        System.arraycopy(nonce, 0, datagram, 16, 12)
-        System.arraycopy(ciphertextWithTag, 0, datagram, 28, ciphertextWithTag.size)
+        val encryptedLength = 12 + ciphertextWithTag.size
+        val lengthBytes = writeVarInt(encryptedLength)
+        
+        val datagram = ByteArray(1 + 16 + lengthBytes.size + encryptedLength)
+        datagram[0] = 0xFF.toByte()
+        System.arraycopy(playerIdBytes, 0, datagram, 1, 16)
+        System.arraycopy(lengthBytes, 0, datagram, 17, lengthBytes.size)
+        
+        val payloadOffset = 17 + lengthBytes.size
+        System.arraycopy(nonce, 0, datagram, payloadOffset, 12)
+        System.arraycopy(ciphertextWithTag, 0, datagram, payloadOffset + 12, ciphertextWithTag.size)
 
         val packet = DatagramPacket(datagram, datagram.size, address, port)
         socket.send(packet)
@@ -48,15 +55,27 @@ class SvcUdpTransport(private val bootstrap: SessionBootstrap) : AutoCloseable {
         socket.receive(packet)
 
         val length = packet.length
-        if (length < 45) {
+        if (length < 1 + 1 + 12 + 16) {
             throw IllegalStateException("Received datagram is too small")
         }
 
-        val nonce = ByteArray(12)
-        System.arraycopy(buffer, 16, nonce, 0, 12)
+        if (buffer[0] != 0xFF.toByte()) {
+            throw IllegalStateException("Invalid magic byte")
+        }
 
-        val ciphertextWithTag = ByteArray(length - 28)
-        System.arraycopy(buffer, 28, ciphertextWithTag, 0, ciphertextWithTag.size)
+        val varIntResult = readVarInt(buffer, 1)
+        val encryptedLength = varIntResult.first
+        val offset = varIntResult.second
+
+        if (offset + encryptedLength > length || encryptedLength < 28) {
+            throw IllegalStateException("Invalid datagram length")
+        }
+
+        val nonce = ByteArray(12)
+        System.arraycopy(buffer, offset, nonce, 0, 12)
+
+        val ciphertextWithTag = ByteArray(encryptedLength - 12)
+        System.arraycopy(buffer, offset + 12, ciphertextWithTag, 0, ciphertextWithTag.size)
 
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(128, nonce))
@@ -67,6 +86,34 @@ class SvcUdpTransport(private val bootstrap: SessionBootstrap) : AutoCloseable {
         System.arraycopy(unencryptedData, 1, payload, 0, payload.size)
 
         Pair(typeId, payload)
+    }
+
+    private fun writeVarInt(value: Int): ByteArray {
+        var v = value
+        val bytes = mutableListOf<Byte>()
+        while ((v and -128) != 0) {
+            bytes.add((v and 127 or 128).toByte())
+            v = v ushr 7
+        }
+        bytes.add(v.toByte())
+        return bytes.toByteArray()
+    }
+
+    private fun readVarInt(buffer: ByteArray, startIndex: Int): Pair<Int, Int> {
+        var value = 0
+        var position = 0
+        var offset = startIndex
+        var currentByte: Byte
+
+        while (true) {
+            currentByte = buffer[offset++]
+            value = value or ((currentByte.toInt() and 0x7F) shl position)
+            if ((currentByte.toInt() and 0x80) == 0) break
+            position += 7
+            if (position >= 32) throw IllegalStateException("VarInt is too big")
+        }
+
+        return Pair(value, offset)
     }
 
     private fun uuidToBytes(uuid: UUID): ByteArray {

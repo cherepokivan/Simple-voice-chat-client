@@ -64,7 +64,7 @@ public sealed class RealSimpleVoiceChat26Adapter : ISvcProtocolAdapter
         }
         catch (OperationCanceledException)
         {
-            return ProtocolHandshakeResult.Unsupported("Тайм-аут подключения к UDP-серверу. Проверьте, открыт ли UDP-порт.");
+            return ProtocolHandshakeResult.Unsupported("Тайм-аут подключения к UDP-серверу. Пакеты AuthAck (0x6) не получены.");
         }
         catch (Exception ex)
         {

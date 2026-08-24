@@ -48,7 +48,7 @@ class RealSimpleVoiceChat26Adapter : SvcProtocolAdapter {
                 ProtocolHandshakeResult(true, "Успешное подключение к UDP-серверу Simple Voice Chat.")
             }
         } catch (e: TimeoutCancellationException) {
-            ProtocolHandshakeResult(false, "Тайм-аут подключения к UDP-серверу. Проверьте, открыт ли UDP-порт.")
+            ProtocolHandshakeResult(false, "Тайм-аут подключения к UDP-серверу. Пакеты AuthAck (0x6) не получены.")
         } catch (e: Exception) {
             ProtocolHandshakeResult(false, "Ошибка UDP-подключения: ${e.message}")
         }
