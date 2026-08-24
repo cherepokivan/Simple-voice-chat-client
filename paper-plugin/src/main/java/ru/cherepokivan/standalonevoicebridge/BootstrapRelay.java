@@ -50,7 +50,7 @@ final class BootstrapRelay {
             } catch (RuntimeException exception) {
                 pending.remove(tokenHash);
                 tokenService.revoke(playerUuid);
-                plugin.getLogger().warning("Could not register a standalone pairing token with the external relay.");
+                plugin.getLogger().warning("Could not register a standalone pairing token with the external relay: " + safeFailureReason(exception));
                 Bukkit.getScheduler().runTask(plugin, onFailure);
             }
         });
@@ -121,6 +121,15 @@ final class BootstrapRelay {
         if (entry != null) {
             cancelTask(entry);
         }
+    }
+
+    private static String safeFailureReason(RuntimeException exception) {
+        String message = exception.getMessage();
+        if (message == null || message.isBlank()) {
+            return exception.getClass().getSimpleName();
+        }
+        // Error messages are deliberately limited to transport and HTTP metadata; request bodies and secrets are never logged.
+        return message.replaceAll("[\\r\\n]+", " ");
     }
 
     private static void cancelTask(PendingToken entry) {
