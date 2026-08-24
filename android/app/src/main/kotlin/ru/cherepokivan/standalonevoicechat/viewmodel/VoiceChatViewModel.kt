@@ -14,12 +14,14 @@ import ru.cherepokivan.standalonevoicechat.network.DiagnosticCheck
 import ru.cherepokivan.standalonevoicechat.network.SafeUdpDiagnostics
 import ru.cherepokivan.standalonevoicechat.protocol.ConnectionState
 import ru.cherepokivan.standalonevoicechat.protocol.ConnectionStateMachine
+import ru.cherepokivan.standalonevoicechat.protocol.RealSimpleVoiceChat26Adapter
 import ru.cherepokivan.standalonevoicechat.protocol.ServerSharePayload
 
 class VoiceChatViewModel(application: Application) : AndroidViewModel(application) {
     private val stateMachine = ConnectionStateMachine()
     private val diagnostics = SafeUdpDiagnostics()
     private val bootstrapRelayClient = BootstrapRelayClient()
+    private val protocolAdapter = RealSimpleVoiceChat26Adapter()
     private val savedServersRepository = SavedServersRepository(application)
     private val mutableState = MutableStateFlow(
         VoiceChatUiState(savedServers = savedServersRepository.getAll())
@@ -50,34 +52,45 @@ class VoiceChatViewModel(application: Application) : AndroidViewModel(applicatio
         stateMachine.transitionTo(ConnectionState.Connecting)
         update { copy(connectionState = stateMachine.state, statusMessage = "Checking endpoint and local UDP prerequisites…") }
         viewModelScope.launch {
-            var bootstrapVerified = false
+            var bootstrap: ru.cherepokivan.standalonevoicechat.protocol.SessionBootstrap? = null
             try {
                 if (current.pairingCode.isNotBlank()) {
                     stateMachine.transitionTo(ConnectionState.Authenticating)
                     update { copy(connectionState = stateMachine.state, statusMessage = "Подтверждаем одноразовый код через защищённый relay…") }
-                    val bootstrap = bootstrapRelayClient.exchange(current.bootstrapRelayUrl, current.pairingCode)
-                    try {
-                        bootstrapVerified = true
-                    } finally {
-                        bootstrap.clearSecret()
-                    }
+                    bootstrap = bootstrapRelayClient.exchange(current.bootstrapRelayUrl, current.pairingCode)
                 }
+                
                 val checks = diagnostics.probe(current.host.trim(), voicePort)
-                stateMachine.fail()
-                update {
-                    copy(
-                        diagnostics = checks,
-                        connectionState = stateMachine.state,
-                        statusMessage = if (bootstrapVerified) {
-                            "Bootstrap подтверждён сервером. Прямая передача SVC UDP/Opus остаётся отключённой до проверки версионного адаптера."
-                        } else {
-                            "Введите код из Minecraft для получения серверного bootstrap. Приложение не создаёт UUID, секрет или предполагаемый UDP handshake."
-                        }
-                    )
+                
+                if (bootstrap != null) {
+                    val result = protocolAdapter.connect(bootstrap)
+                    if (result.isConnected) {
+                        stateMachine.transitionTo(ConnectionState.Connected)
+                    } else {
+                        stateMachine.fail()
+                    }
+                    update {
+                        copy(
+                            diagnostics = checks,
+                            connectionState = stateMachine.state,
+                            statusMessage = result.message
+                        )
+                    }
+                } else {
+                    stateMachine.fail()
+                    update {
+                        copy(
+                            diagnostics = checks,
+                            connectionState = stateMachine.state,
+                            statusMessage = "Введите код из Minecraft для получения серверного bootstrap. Приложение не создаёт UUID, секрет или предполагаемый UDP handshake."
+                        )
+                    }
                 }
             } catch (exception: Exception) {
                 stateMachine.fail()
                 update { copy(connectionState = stateMachine.state, statusMessage = exception.message ?: "Не удалось подтвердить код подключения.") }
+            } finally {
+                bootstrap?.close()
             }
         }
     }

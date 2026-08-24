@@ -3,6 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using StandaloneVoiceChat.Client;
 using StandaloneVoiceChat.Protocol;
+using StandaloneVoiceChat.Network;
 using StandaloneVoiceChat.UI.ViewModels;
 using StandaloneVoiceChat.UI.Views;
 
@@ -16,7 +17,7 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            var coordinator = new VoiceChatSessionCoordinator(new SimpleVoiceChat26Adapter());
+            var coordinator = new VoiceChatSessionCoordinator(new RealSimpleVoiceChat26Adapter());
 
             desktop.MainWindow = new MainWindow
             {
