@@ -44,7 +44,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     private string _serverHost = string.Empty;
 
     [ObservableProperty]
-    private string _bootstrapRelayUrl = "https://simple-voice-bootstrap-relay.vercel.app";
+    private string _bootstrapRelayUrl = "https://simple-voice-bootstrap-relay-next.vercel.app";
 
     [ObservableProperty]
     private string _pairingCode = string.Empty;

@@ -113,7 +113,7 @@ class VoiceChatViewModel(application: Application) : AndroidViewModel(applicatio
 data class VoiceChatUiState(
     val serverName: String = "",
     val host: String = "",
-    val bootstrapRelayUrl: String = "https://simple-voice-bootstrap-relay.vercel.app",
+    val bootstrapRelayUrl: String = "https://simple-voice-bootstrap-relay-next.vercel.app",
     val pairingCode: String = "",
     val minecraftPort: String = "25565",
     val voicePort: String = "24454",
