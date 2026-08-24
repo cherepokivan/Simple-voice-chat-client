@@ -4,6 +4,7 @@
         x:Class="StandaloneVoiceChat.UI.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="Simple Voice Chat — Standalone"
+        Icon="avares://SimpleVoiceChatClient/Assets/simple-voice-chat-icon.ico"
         Width="1050" Height="760"
         MinWidth="900" MinHeight="650"
         Background="#0D141F">
@@ -38,7 +39,7 @@
               <TextBox Text="{Binding BootstrapRelayUrl}" Watermark="https://relay.example.com" />
               <TextBlock Text="Одноразовый код из Minecraft" Foreground="#9FB0C5" FontSize="12" />
               <TextBox Text="{Binding PairingCode}" Watermark="ABCD-EFGH-IJKL" />
-              <Button Content="{Binding ConnectButtonText}" Command="{Binding ToggleConnectionCommand}" HorizontalAlignment="Left" MinWidth="155" />
+              <Button Content="{Binding ConnectButtonText}" Classes.primary="{Binding !IsConnecting}" Classes.danger="{Binding IsConnecting}" Command="{Binding ToggleConnectionCommand}" HorizontalAlignment="Left" MinWidth="155" HorizontalContentAlignment="Center" />
               <CheckBox Content="Connect automatically" IsChecked="{Binding ConnectAutomatically}" />
             </StackPanel>
           </Border>

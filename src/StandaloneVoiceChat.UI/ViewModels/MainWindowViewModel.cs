@@ -98,6 +98,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     private string _statusMessage = "Введите адрес сервера и выполните диагностику. Полное подключение будет доступно только через официальный bootstrap сервера.";
 
     public string ConnectButtonText => _connectionCancellation is null ? "Connect" : "Cancel";
+    public bool IsConnecting => _connectionCancellation is null ? false : true;
     public string InputVolumeLabel => $"{Math.Round(InputVolume):0}%";
     public string OutputVolumeLabel => $"{Math.Round(OutputVolume):0}%";
 
@@ -115,6 +116,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
             ServerEndpoint endpoint = ServerEndpoint.Create(ServerHost, decimal.ToInt32(MinecraftPort), decimal.ToInt32(VoicePort));
             _connectionCancellation = new CancellationTokenSource();
             OnPropertyChanged(nameof(ConnectButtonText));
+            OnPropertyChanged(nameof(IsConnecting));
             StatusMessage = "Checking endpoint and local network prerequisites…";
 
             SessionBootstrap? bootstrap = null;
@@ -154,6 +156,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
             _connectionCancellation?.Dispose();
             _connectionCancellation = null;
             OnPropertyChanged(nameof(ConnectButtonText));
+            OnPropertyChanged(nameof(IsConnecting));
             RefreshStateText();
         }
     }
