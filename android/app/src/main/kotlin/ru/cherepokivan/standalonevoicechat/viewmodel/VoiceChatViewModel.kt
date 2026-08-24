@@ -14,8 +14,10 @@ import ru.cherepokivan.standalonevoicechat.network.DiagnosticCheck
 import ru.cherepokivan.standalonevoicechat.network.SafeUdpDiagnostics
 import ru.cherepokivan.standalonevoicechat.protocol.ConnectionState
 import ru.cherepokivan.standalonevoicechat.protocol.ConnectionStateMachine
+import ru.cherepokivan.standalonevoicechat.protocol.ProtocolVersion
 import ru.cherepokivan.standalonevoicechat.protocol.RealSimpleVoiceChat26Adapter
 import ru.cherepokivan.standalonevoicechat.protocol.ServerSharePayload
+import ru.cherepokivan.standalonevoicechat.protocol.SessionBootstrap
 
 class VoiceChatViewModel(application: Application) : AndroidViewModel(application) {
     private val stateMachine = ConnectionStateMachine()
@@ -52,12 +54,26 @@ class VoiceChatViewModel(application: Application) : AndroidViewModel(applicatio
         stateMachine.transitionTo(ConnectionState.Connecting)
         update { copy(connectionState = stateMachine.state, statusMessage = "Checking endpoint and local UDP prerequisites…") }
         viewModelScope.launch {
-            var bootstrap: ru.cherepokivan.standalonevoicechat.protocol.SessionBootstrap? = null
+            var bootstrap: SessionBootstrap? = null
             try {
                 if (current.pairingCode.isNotBlank()) {
                     stateMachine.transitionTo(ConnectionState.Authenticating)
                     update { copy(connectionState = stateMachine.state, statusMessage = "Подтверждаем одноразовый код через защищённый relay…") }
-                    bootstrap = bootstrapRelayClient.exchange(current.bootstrapRelayUrl, current.pairingCode)
+                    val relayBootstrap = bootstrapRelayClient.exchange(current.bootstrapRelayUrl, current.pairingCode)
+                    try {
+                        bootstrap = SessionBootstrap(
+                            playerId = relayBootstrap.playerUuid,
+                            voiceHost = relayBootstrap.voiceHost,
+                            voicePort = relayBootstrap.voicePort,
+                            protocolVersion = ProtocolVersion.SimpleVoiceChat262,
+                            secret = relayBootstrap.secret,
+                            mtuSize = 1024,
+                            keepAliveMilliseconds = 1_000,
+                            groupsEnabled = false
+                        )
+                    } finally {
+                        relayBootstrap.clearSecret()
+                    }
                 }
                 
                 val checks = diagnostics.probe(current.host.trim(), voicePort)
