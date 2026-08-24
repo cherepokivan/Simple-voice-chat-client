@@ -12,11 +12,17 @@ import java.util.Objects;
 
 /** Delivers a pairing token only through the authenticated player's in-game session. */
 final class StandalonePairingListener implements Listener {
-    private final StandaloneTokenService tokenService;
-    private final boolean automaticIssueEnabled;
-    private final BootstrapRelay bootstrapRelay;
+    private volatile StandaloneTokenService tokenService;
+    private volatile boolean automaticIssueEnabled;
+    private volatile BootstrapRelay bootstrapRelay;
 
     StandalonePairingListener(StandaloneTokenService tokenService, boolean automaticIssueEnabled, BootstrapRelay bootstrapRelay) {
+        this.tokenService = Objects.requireNonNull(tokenService, "tokenService");
+        this.automaticIssueEnabled = automaticIssueEnabled;
+        this.bootstrapRelay = bootstrapRelay;
+    }
+
+    void reconfigure(StandaloneTokenService tokenService, boolean automaticIssueEnabled, BootstrapRelay bootstrapRelay) {
         this.tokenService = Objects.requireNonNull(tokenService, "tokenService");
         this.automaticIssueEnabled = automaticIssueEnabled;
         this.bootstrapRelay = bootstrapRelay;

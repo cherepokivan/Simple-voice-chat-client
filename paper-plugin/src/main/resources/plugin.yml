@@ -8,9 +8,12 @@ depend: [voicechat]
 commands:
   voice:
     description: Generates a one-time token for the Standalone Voice Chat client.
-    usage: /voice standalone
+    usage: /voice <standalone|reload>
     permission: standalonevoicebridge.pair
 permissions:
   standalonevoicebridge.pair:
     description: Allows a player to generate their own standalone pairing token.
     default: true
+  standalonevoicebridge.reload:
+    description: Allows reloading Standalone Voice Bridge configuration and relay state.
+    default: op

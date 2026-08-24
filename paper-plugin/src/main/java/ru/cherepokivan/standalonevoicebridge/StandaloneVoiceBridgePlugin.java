@@ -13,6 +13,7 @@ import java.time.Duration;
 public final class StandaloneVoiceBridgePlugin extends JavaPlugin {
     private StandaloneTokenService tokenService;
     private BootstrapRelay bootstrapRelay;
+    private StandalonePairingListener pairingListener;
 
     @Override
     public void onEnable() {
@@ -37,7 +38,7 @@ public final class StandaloneVoiceBridgePlugin extends JavaPlugin {
         int tokenLength = getConfig().getInt("pairing.token-length", 12);
         tokenService = new StandaloneTokenService(Duration.ofSeconds(tokenLifetimeSeconds), tokenLength);
         bootstrapRelay = createBootstrapRelay();
-        StandalonePairingListener pairingListener = new StandalonePairingListener(
+        pairingListener = new StandalonePairingListener(
             tokenService,
             getConfig().getBoolean("pairing.issue-on-player-join", true),
             bootstrapRelay);
@@ -47,7 +48,7 @@ public final class StandaloneVoiceBridgePlugin extends JavaPlugin {
         if (command == null) {
             getLogger().severe("Command 'voice' is missing from plugin.yml; pairing command is disabled.");
         } else {
-            StandaloneVoiceCommand executor = new StandaloneVoiceCommand(pairingListener);
+            StandaloneVoiceCommand executor = new StandaloneVoiceCommand(this, pairingListener);
             command.setExecutor(executor);
             command.setTabCompleter(executor);
         }
@@ -57,6 +58,29 @@ public final class StandaloneVoiceBridgePlugin extends JavaPlugin {
             getLogger().warning("External bootstrap relay is disabled or incomplete; no standalone token will be shown.");
         } else {
             getLogger().info("External bootstrap relay is enabled. The Minecraft host opens no incoming bridge port.");
+        }
+    }
+
+    void reloadBridgeConfiguration() {
+        if (bootstrapRelay != null) {
+            bootstrapRelay.close();
+            bootstrapRelay = null;
+        }
+
+        reloadConfig();
+        int tokenLifetimeSeconds = getConfig().getInt("pairing.token-lifetime-seconds", 120);
+        int tokenLength = getConfig().getInt("pairing.token-length", 12);
+        tokenService = new StandaloneTokenService(Duration.ofSeconds(tokenLifetimeSeconds), tokenLength);
+        bootstrapRelay = createBootstrapRelay();
+        pairingListener.reconfigure(
+            tokenService,
+            getConfig().getBoolean("pairing.issue-on-player-join", true),
+            bootstrapRelay);
+
+        if (bootstrapRelay == null) {
+            getLogger().warning("Standalone bridge configuration was reloaded, but the external relay is disabled or invalid.");
+        } else {
+            getLogger().info("Standalone bridge configuration and external relay were reloaded.");
         }
     }
 

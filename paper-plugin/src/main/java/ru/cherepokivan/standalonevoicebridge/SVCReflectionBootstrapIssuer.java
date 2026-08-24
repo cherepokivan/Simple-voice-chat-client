@@ -67,12 +67,12 @@ final class SVCReflectionBootstrapIssuer {
 
     record BootstrapData(String protocol, UUID playerUuid, String secret, String voiceHost, int voicePort, long expiresAtEpochMs) {
         String toJson() {
-            return "{\\\"protocol\\\":" + BridgeCrypto.jsonString(protocol)
-                + ",\\\"playerUuid\\\":" + BridgeCrypto.jsonString(playerUuid.toString())
-                + ",\\\"secret\\\":" + BridgeCrypto.jsonString(secret)
-                + ",\\\"voiceHost\\\":" + BridgeCrypto.jsonString(voiceHost)
-                + ",\\\"voicePort\\\":" + voicePort
-                + ",\\\"expiresAtEpochMs\\\":" + expiresAtEpochMs + "}";
+            return "{\"protocol\":" + BridgeCrypto.jsonString(protocol)
+                + ",\"playerUuid\":" + BridgeCrypto.jsonString(playerUuid.toString())
+                + ",\"secret\":" + BridgeCrypto.jsonString(secret)
+                + ",\"voiceHost\":" + BridgeCrypto.jsonString(voiceHost)
+                + ",\"voicePort\":" + voicePort
+                + ",\"expiresAtEpochMs\":" + expiresAtEpochMs + "}";
         }
     }
 }

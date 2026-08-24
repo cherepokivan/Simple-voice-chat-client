@@ -32,21 +32,21 @@ final class ExternalBootstrapClient {
     }
 
     void register(String tokenHash, UUID playerUuid) {
-        String payload = "{\\\"tokenHash\\\":" + BridgeCrypto.jsonString(tokenHash) + ",\\\"playerUuid\\\":" + BridgeCrypto.jsonString(playerUuid.toString()) + "}";
+        String payload = "{\"tokenHash\":" + BridgeCrypto.jsonString(tokenHash) + ",\"playerUuid\":" + BridgeCrypto.jsonString(playerUuid.toString()) + "}";
         signedPost("register", "/api/plugin/register", payload, tokenHash, playerUuid.toString());
     }
 
     BridgeClaim check(String tokenHash) {
-        String payload = "{\\\"tokenHash\\\":" + BridgeCrypto.jsonString(tokenHash) + "}";
+        String payload = "{\"tokenHash\":" + BridgeCrypto.jsonString(tokenHash) + "}";
         String response = signedPost("check", "/api/plugin/check", payload, tokenHash);
         String status = field(response, "status");
         return new BridgeClaim("claimed".equals(status), field(response, "requestId"));
     }
 
     void complete(String tokenHash, String requestId, String bootstrapJson) {
-        String payload = "{\\\"tokenHash\\\":" + BridgeCrypto.jsonString(tokenHash)
-            + ",\\\"requestId\\\":" + BridgeCrypto.jsonString(requestId)
-            + ",\\\"bootstrap\\\":" + bootstrapJson + "}";
+        String payload = "{\"tokenHash\":" + BridgeCrypto.jsonString(tokenHash)
+            + ",\"requestId\":" + BridgeCrypto.jsonString(requestId)
+            + ",\"bootstrap\":" + bootstrapJson + "}";
         signedPost("complete", "/api/plugin/complete", payload, tokenHash, requestId, bootstrapJson);
     }
 
@@ -70,8 +70,10 @@ final class ExternalBootstrapClient {
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("External bridge request was interrupted.", exception);
+        } catch (RuntimeException exception) {
+            throw exception;
         } catch (Exception exception) {
-            throw new IllegalStateException("External bridge request failed.", exception);
+            throw new IllegalStateException("External bridge request failed: " + exception.getClass().getSimpleName() + ".", exception);
         }
     }
 
