@@ -50,9 +50,13 @@ final class ExternalBootstrapClient {
         signedPost("complete", "/api/plugin/complete", payload, tokenHash, requestId, bootstrapJson);
     }
 
+    static String canonicalRequest(String action, String serverId, long timestamp, String... fields) {
+        return String.join("\n", action, serverId, Long.toString(timestamp), String.join("\n", fields));
+    }
+
     private String signedPost(String action, String path, String payload, String... canonicalFields) {
         long timestamp = Instant.now().toEpochMilli();
-        String canonical = String.join("\\n", action, serverId, Long.toString(timestamp), String.join("\\n", canonicalFields));
+        String canonical = canonicalRequest(action, serverId, timestamp, canonicalFields);
         HttpRequest request = HttpRequest.newBuilder(baseUri.resolve(path))
             .timeout(Duration.ofSeconds(15))
             .header("Content-Type", "application/json")
