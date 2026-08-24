@@ -18,7 +18,7 @@ class RealSimpleVoiceChat26Adapter : SvcProtocolAdapter {
                 System.arraycopy(uuidBytes, 0, authPayload, 0, 16)
                 System.arraycopy(secretBytes, 0, authPayload, 16, 16)
 
-                transport.sendPacket(0x5, authPayload)
+                transport.sendPacket(0x5.toByte(), authPayload)
 
                 // 2. Wait for AuthenticateAckPacket (0x6)
                 withTimeout(5000) {
@@ -32,7 +32,7 @@ class RealSimpleVoiceChat26Adapter : SvcProtocolAdapter {
                 }
 
                 // 3. Send ConnectionCheckPacket (0x9)
-                transport.sendPacket(0x9, ByteArray(0))
+                transport.sendPacket(0x9.toByte(), ByteArray(0))
 
                 // 4. Wait for ConnectionCheckAckPacket (0xA)
                 withTimeout(5000) {
