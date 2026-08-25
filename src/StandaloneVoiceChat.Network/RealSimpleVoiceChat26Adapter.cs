@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using StandaloneVoiceChat.Protocol;
 
 namespace StandaloneVoiceChat.Network;
@@ -12,66 +11,69 @@ public sealed class RealSimpleVoiceChat26Adapter : ISvcProtocolAdapter
         ArgumentNullException.ThrowIfNull(bootstrap);
         cancellationToken.ThrowIfCancellationRequested();
 
+        const int handshakeTimeoutSeconds = 5;
+        string stage = "создание UDP-сокета";
+
         try
         {
             using var transport = new SvcUdpTransport(bootstrap);
 
-            // 1. Send AuthenticatePacket (0x5)
-            // Payload: UUID (16 bytes) + Secret (16 bytes)
+            // AuthenticatePacket (0x5): UUID (16 bytes) followed by the server-issued secret (16 bytes).
+            stage = "отправка AuthenticatePacket (0x5)";
             byte[] authPayload = new byte[32];
             byte[] uuidBytes = GuidToBigEndianBytes(bootstrap.PlayerId);
             byte[] secretBytes = bootstrap.GetSecret().ToArray();
-            
             Buffer.BlockCopy(uuidBytes, 0, authPayload, 0, 16);
             Buffer.BlockCopy(secretBytes, 0, authPayload, 16, 16);
-
             await transport.SendPacketAsync(0x5, authPayload, cancellationToken).ConfigureAwait(false);
 
-            // 2. Wait for AuthenticateAckPacket (0x6)
-            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            timeoutCts.CancelAfter(TimeSpan.FromSeconds(5));
+            stage = "ожидание AuthenticateAck (0x6)";
+            await WaitForPacketAsync(transport, 0x6, handshakeTimeoutSeconds, cancellationToken).ConfigureAwait(false);
 
-            bool authenticated = false;
-            while (!authenticated)
-            {
-                var (typeId, payload) = await transport.ReceivePacketAsync(timeoutCts.Token).ConfigureAwait(false);
-                if (typeId == 0x6) // AuthenticateAck
-                {
-                    authenticated = true;
-                }
-            }
-
-            // 3. Send ConnectionCheckPacket (0x9)
-            // Empty payload
+            stage = "отправка ConnectionCheckPacket (0x9)";
             await transport.SendPacketAsync(0x9, Array.Empty<byte>(), cancellationToken).ConfigureAwait(false);
 
-            // 4. Wait for ConnectionCheckAckPacket (0xA)
-            bool connected = false;
-            while (!connected)
-            {
-                var (typeId, payload) = await transport.ReceivePacketAsync(timeoutCts.Token).ConfigureAwait(false);
-                if (typeId == 0xA) // ConnectionCheckAck
-                {
-                    connected = true;
-                }
-            }
+            stage = "ожидание ConnectionCheckAck (0xA)";
+            await WaitForPacketAsync(transport, 0xA, handshakeTimeoutSeconds, cancellationToken).ConfigureAwait(false);
 
-            // Handshake successful!
-            // In a full implementation, we would return a connected session object here,
-            // or start background tasks for KeepAlive and Mic/Sound packets.
-            
             return new ProtocolHandshakeResult(true, "Успешное подключение к UDP-серверу Simple Voice Chat.");
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (OperationCanceledException)
         {
-            return ProtocolHandshakeResult.Unsupported("Тайм-аут подключения к UDP-серверу. Пакеты AuthAck (0x6) не получены.");
+            return ProtocolHandshakeResult.Unsupported($"Тайм-аут UDP-handshake: {stage} не завершён за {handshakeTimeoutSeconds} с.");
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            return ProtocolHandshakeResult.Unsupported($"Ошибка UDP-подключения: {ex.Message}");
+            string detail = string.IsNullOrWhiteSpace(exception.Message)
+                ? exception.GetType().Name
+                : $"{exception.GetType().Name}: {exception.Message}";
+            return ProtocolHandshakeResult.Unsupported($"Ошибка UDP-подключения на этапе «{stage}»: {detail}");
         }
     }
-    
+
+    private static async Task WaitForPacketAsync(
+        SvcUdpTransport transport,
+        byte expectedType,
+        int timeoutSeconds,
+        CancellationToken cancellationToken)
+    {
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeout.CancelAfter(TimeSpan.FromSeconds(timeoutSeconds));
+
+        while (true)
+        {
+            (byte typeId, _) = await transport.ReceivePacketAsync(timeout.Token).ConfigureAwait(false);
+            if (typeId == expectedType)
+            {
+                return;
+            }
+        }
+    }
+
     private static byte[] GuidToBigEndianBytes(Guid guid)
     {
         byte[] bytes = guid.ToByteArray();
