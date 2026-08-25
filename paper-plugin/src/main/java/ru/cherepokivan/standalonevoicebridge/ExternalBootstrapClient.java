@@ -65,20 +65,37 @@ final class ExternalBootstrapClient {
             .header("X-Bridge-Signature", BridgeCrypto.hmacBase64Url(sharedSecret, canonical))
             .POST(HttpRequest.BodyPublishers.ofString(payload, StandardCharsets.UTF_8))
             .build();
-        try {
-            HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-            if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                throw new IllegalStateException("External bridge rejected a request (HTTP " + response.statusCode() + ").");
+        int attempts = 3;
+        for (int i = 1; i <= attempts; i++) {
+            try {
+                HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+                if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                    throw new IllegalStateException("External bridge rejected a request (HTTP " + response.statusCode() + ").");
+                }
+                return response.body();
+            } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException("External bridge request was interrupted.", exception);
+            } catch (RuntimeException exception) {
+                throw exception;
+            } catch (java.net.http.HttpConnectTimeoutException exception) {
+                if (i == attempts) {
+                    throw new IllegalStateException("External bridge request timed out after " + attempts + " attempts. Ensure the server has internet access to Vercel.", exception);
+                }
+                try { Thread.sleep(1000L * i); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+            } catch (java.net.http.HttpTimeoutException exception) {
+                if (i == attempts) {
+                    throw new IllegalStateException("External bridge request timed out (read timeout).", exception);
+                }
+                try { Thread.sleep(1000L * i); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+            } catch (Exception exception) {
+                if (i == attempts || exception.getClass().getSimpleName().contains("SSL")) {
+                    throw new IllegalStateException("External bridge request failed: " + exception.getClass().getSimpleName() + " - " + exception.getMessage(), exception);
+                }
+                try { Thread.sleep(1000L * i); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
             }
-            return response.body();
-        } catch (InterruptedException exception) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("External bridge request was interrupted.", exception);
-        } catch (RuntimeException exception) {
-            throw exception;
-        } catch (Exception exception) {
-            throw new IllegalStateException("External bridge request failed: " + exception.getClass().getSimpleName() + ".", exception);
         }
+        throw new IllegalStateException("External bridge request failed after " + attempts + " attempts.");
     }
 
     private static URI normalizeBaseUri(String value) {
